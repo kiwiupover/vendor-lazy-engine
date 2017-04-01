@@ -1,6 +1,7 @@
 /* eslint-env node */
-'use strict';
+const EngineAddon = require('ember-engines/lib/engine-addon');
 
-module.exports = {
-  name: 'vendor-lazy-engine'
-};
+module.exports = EngineAddon.extend({
+  name: 'vendor-lazy-engine',
+  lazyLoading: true
+});
