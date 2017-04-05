@@ -5,6 +5,7 @@ const EngineAddon = require('ember-engines/lib/engine-addon');
 const MergeTrees = require('ember-cli/lib/broccoli/merge-trees');
 
 const debug = require('broccoli-stew').debug;
+const log = require('broccoli-stew').log;
 
 module.exports = EngineAddon.extend({
   name: 'vendor-lazy-engine',
@@ -27,16 +28,21 @@ module.exports = EngineAddon.extend({
     this.import('vendor/shims/highlightjs.js');
   },
 
-  treeForVendor() {
-    var tree = this._super.treeForVendor.apply(this, arguments);
+  treeForVendor(tree) {
+    let treeForVendorTree = log(tree, { output: 'tree', label: 'treeForVendorTree' });
 
-    let highlightTree = new Funnel(path.join(this.project.root, 'node_modules', 'highlightjs'), {
-      files: ['highlight.pack.js'],
+    let hljsPath = path.parse(require.resolve('highlightjs'));
+    
+    let highlightTree = new Funnel(hljsPath.dir, {
+      files: [hljsPath.base],
     });
 
-    let vendorTree = MergeTrees([tree, highlightTree]);
-    let debuggedTrees = debug(vendorTree, { name: 'vendorTree' });
+    let vendorTree = MergeTrees([treeForVendorTree, highlightTree], {
+      overwrite: true
+    });
 
-    return debuggedTrees
+    let vendorTreeLog = log(vendorTree, { output: 'tree', label: 'treeForVendorMergedTree' });
+
+    return vendorTreeLog
   }
 });
